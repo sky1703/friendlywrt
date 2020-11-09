@@ -108,7 +108,8 @@ if [ ${DISABLE_LAN_IPV6} -eq 1 ]; then
 fi
 
 # {{ set ipv6 ip prefix
-uci set 'network.globals.ula_prefix=fd00:eeee:eeee::/48'
+uci set 'network.globals.ula_prefix=fd00:ab:cd::/48'
+uci commit network
 NEED_RESTART_SERVICE=1
 # }}
 
