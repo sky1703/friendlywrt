@@ -93,6 +93,25 @@ EOF
     NEED_RESTART_SERVICE=1
 fi
 
+DISABLE_LAN_IPV6=0
+if [ ${DISABLE_LAN_IPV6} -eq 1 ]; then
+    # {{ disable lan ipv6
+    uci set 'network.lan.ipv6=off'
+    uci set 'network.lan.delegate=0'
+    uci set 'network.lan.force_link=0'
+    uci set 'dhcp.lan.dhcpv6=disabled'
+    uci set 'dhcp.lan.ra=disabled'
+    uci commit
+    /etc/init.d/odhcpd restart
+    NEED_RESTART_SERVICE=1
+    # }}
+fi
+
+# {{ set ipv6 ip prefix
+uci set 'network.globals.ula_prefix=fd00:eeee:eeee::/48'
+NEED_RESTART_SERVICE=1
+# }}
+
 if [ ${NEED_RESTART_SERVICE} -eq 1 ]; then
     /etc/init.d/led restart
     /etc/init.d/network restart
