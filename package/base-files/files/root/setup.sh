@@ -93,15 +93,22 @@ EOF
     NEED_RESTART_SERVICE=1
 fi
 
-DISABLE_LAN_IPV6=0
-if [ ${DISABLE_LAN_IPV6} -eq 1 ]; then
-    # {{ disable lan ipv6
+DISABLE_IPV6=0
+if [ ${DISABLE_IPV6} -eq 1 ]; then
+    # {{ disable ipv6
     uci set 'network.lan.ipv6=off'
     uci set 'network.lan.delegate=0'
     uci set 'network.lan.force_link=0'
+
+    uci set 'network.wan.ipv6=0'
+    uci set 'network.wan.delegate=0'
+    uci delete 'network.wan6'
+    uci commit network
+
     uci set 'dhcp.lan.dhcpv6=disabled'
     uci set 'dhcp.lan.ra=disabled'
-    uci commit
+    uci commit dhcp
+
     /etc/init.d/odhcpd restart
     NEED_RESTART_SERVICE=1
     # }}
