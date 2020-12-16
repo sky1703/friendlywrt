@@ -1,14 +1,18 @@
+From 77a7bf715255bf985b2a53ccc94b429cae201ebe Mon Sep 17 00:00:00 2001
 From: Felix Fietkau <nbd@nbd.name>
-Subject: netfilter: match bypass default table
+Date: Wed, 16 Dec 2020 12:43:48 +0800
+Subject: [PATCH] netfilter: match bypass default table
 
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
- net/ipv4/netfilter/ip_tables.c | 79 +++++++++++++++++++++++++++++++-----------
- 1 file changed, 58 insertions(+), 21 deletions(-)
+ net/ipv4/netfilter/ip_tables.c | 69 ++++++++++++++++++++++++++--------
+ 1 file changed, 53 insertions(+), 16 deletions(-)
 
+diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
+index 90c222074e4b..8e2d2b820c8f 100644
 --- a/net/ipv4/netfilter/ip_tables.c
 +++ b/net/ipv4/netfilter/ip_tables.c
-@@ -246,6 +246,33 @@ struct ipt_entry *ipt_next_entry(const s
+@@ -246,6 +246,33 @@ struct ipt_entry *ipt_next_entry(const struct ipt_entry *entry)
  	return (void *)entry + entry->next_offset;
  }
  
@@ -48,7 +52,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	/* Initialization */
 +	WARN_ON(!(table->valid_hooks & (1 << hook)));
 +	local_bh_disable();
-+	private = READ_ONCE(table->private); /* Address dependency. */
++	private = rcu_access_pointer(table->private);
 +	cpu        = smp_processor_id();
 +	table_base = private->entries;
 +
@@ -80,7 +84,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 -	WARN_ON(!(table->valid_hooks & (1 << hook)));
 -	local_bh_disable();
  	addend = xt_write_recseq_begin();
--	private = READ_ONCE(table->private); /* Address dependency. */
+-	private = rcu_access_pointer(table->private);
 -	cpu        = smp_processor_id();
 -	table_base = private->entries;
  	jumpstack  = (struct ipt_entry **)private->jumpstack[cpu];
@@ -104,3 +108,6 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	do {
  		const struct xt_entry_target *t;
+-- 
+2.29.1
+
