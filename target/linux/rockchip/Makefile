@@ -10,7 +10,7 @@ FEATURES:=ext4 audio usb usbgadget display gpio fpu pci pcie rootfs-part boot-pa
 SUBTARGETS:=armv8
 CPU_TYPE:=cortex-a53
 
-KERNEL_PATCHVER=5.4
+KERNEL_PATCHVER=5.10
 
 define Target/Description
 	Build firmware image for Rockchip SoC devices.
