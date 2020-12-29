@@ -14,7 +14,7 @@ CPU_TYPE:=cortex-a9
 CPU_SUBTYPE:=neon
 MAINTAINER:=FriendlyARM <support@friendlyarm.com>
 
-KERNEL_PATCHVER:=4.19
+KERNEL_PATCHVER:=4.14
 
 
 define Target/Description
