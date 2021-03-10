@@ -1,10 +1,18 @@
 #!/bin/sh /etc/rc.common
 
 START=99
-
+. /lib/functions.sh
 start() {
-    # CPU1 (2nd core) -> internal dev 
-    echo 2 > /proc/irq/27/smp_affinity
+  case "$(board_name)" in
+  "friendlyelec,nanopi-r4s")
+    # CPU1 (2nd core) -> internal dev
+    INQETH0=$(awk -F":" "/eth0/ {print \$1}" </proc/interrupts | sed 's/\ //g')
+    echo 2 > /proc/irq/${INQETH0}/smp_affinity
     # CPU2 (3nd core) -> pci-e dev
-    echo 4 > /proc/irq/234/smp_affinity
+    INQETH1=$(awk -F":" "/eth1/ {print \$1}" </proc/interrupts | sed 's/\ //g')
+    echo 4 > /proc/irq/${INQETH1}/smp_affinity
+    ;;
+  *)
+    ;;
+  esac
 }
