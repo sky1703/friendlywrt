@@ -5,6 +5,7 @@ START=97
 start() {
     case "$(board_name)" in
     "friendlyelec,nanopi-r2" \
+    |"friendlyelec,nanopi-r2c" \
     |"friendlyelec,nanopi-r2s")
     # eth0
     echo netdev > /sys/class/leds/wan_led/trigger
