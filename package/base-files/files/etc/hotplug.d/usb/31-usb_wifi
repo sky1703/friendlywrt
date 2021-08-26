@@ -1,10 +1,14 @@
 #!/bin/sh
 
-logger ACTION=$ACTION DEVPATH=$DEVPATH SUBSYSTEM=$SUBSYSTEM DEVTYPE=$DEVTYPE PRODUCT=$PRODUCT MODALIAS=$MODALIAS
+logger "usbwifi: CTION=$ACTION DEVPATH=$DEVPATH SUBSYSTEM=$SUBSYSTEM DEVTYPE=$DEVTYPE PRODUCT=$PRODUCT MODALIAS=$MODALIAS"
 
 FE_DIR=/root/.friendlyelec/
 if { [ "${DEVTYPE}" = usb_device ] || [ "${DEVTYPE}" = usb_interface ] ;} \
-    && { [ "${PRODUCT}" = "bda/8812/0" ] || [ "${PRODUCT}" = "bda/b812/210" ] || [ "${PRODUCT}" = "bda/c811/200" ] || [ "${PRODUCT}" = "bda/c820/200" ] ;}; then
+    && { [ "${PRODUCT}" = "bda/8812/0" ] \
+        || [ "${PRODUCT}" = "bda/b812/210" ] \
+        || [ "${PRODUCT}" = "bda/c811/200" ] \
+        || [ "${PRODUCT}" = "bda/c820/200" ] \
+        || [ "${PRODUCT}" = "e8d/7612/100" ] ;}; then
         MODULE=Realtek
     if [ "${PRODUCT}" = "bda/b812/210" ]; then
         MODULE=rtl8822bu
@@ -13,7 +17,9 @@ if { [ "${DEVTYPE}" = usb_device ] || [ "${DEVTYPE}" = usb_interface ] ;} \
     elif [ "${PRODUCT}" = "bda/8812/0" ]; then
         MODULE=rtl8812au
     elif [ "${PRODUCT}" = "bda/c820/200" ]; then
-	    MODULE=realtek-c820
+            MODULE=realtek-c820
+    elif [ "${PRODUCT}" = "e8d/7612/100" ]; then
+        MODULE=mediatek-mt7662
     fi
     TARGET=wlan${MODULE}
 
@@ -22,7 +28,7 @@ if { [ "${DEVTYPE}" = usb_device ] || [ "${DEVTYPE}" = usb_interface ] ;} \
     #logger "${MODULE}: ${WIFI_PATH} ${RADIO}"
 
     if [ "${ACTION}" = bind ]; then
-        logger "${MODULE}: insert"
+        logger "usbwifi: detected ${MODULE}"
 
         # Rename physical dev
         # Unimplement(cause error), please FIX ME
@@ -34,15 +40,29 @@ if { [ "${DEVTYPE}" = usb_device ] || [ "${DEVTYPE}" = usb_interface ] ;} \
 
         mkdir -p ${FE_DIR}
         if [ -e ${FE_DIR}/first_insert_${MODULE} ]; then
-            logger "not first init for ${MODULE}"
+            logger "usbwifi: already init for ${MODULE}"
         else
             touch ${FE_DIR}/first_insert_${MODULE}
-            logger "first init for ${MODULE}"
+            logger "usbwifi: first init for ${MODULE}"
 
             # Enable wifi and change ssid
             if [ -n "`uci get wireless.${RADIO}`" ]; then
-                # FIXME: Since these USB wifi is too slow in 5g mode, use 2.4G instead
-                uci batch <<EOF
+                logger "usbwifi: add configs for ${MODULE}"
+                if [ "${MODULE}" = "mediatek-mt7662" ]; then
+                    # 5g mode
+                    uci batch <<EOF
+set wireless.${RADIO}.hwmode='11a'
+set wireless.${RADIO}.htmode='VHT80'
+set wireless.${RADIO}.channel='153'
+set wireless.${RADIO}.country='CN'
+set wireless.${RADIO}.disabled=0
+set wireless.default_${RADIO}.ssid=FriendlyWrt-${ADDRESS}
+set wireless.default_${RADIO}.encryption=psk2
+set wireless.default_${RADIO}.key=password
+EOF
+                else
+                    # FIXME: Since these USB wifi is too slow in 5g mode, use 2.4G instead
+                    uci batch <<EOF
 set wireless.${RADIO}.hwmode='11g'
 set wireless.${RADIO}.htmode='HT20'
 set wireless.${RADIO}.channel='7'
@@ -52,6 +72,7 @@ set wireless.default_${RADIO}.ssid=FriendlyWrt-${ADDRESS}
 set wireless.default_${RADIO}.encryption=psk2
 set wireless.default_${RADIO}.key=password
 EOF
+                 fi
             fi
 
             # add lan interface if not exist. dnsmasq need this
@@ -66,14 +87,14 @@ set network.lan.ip6assign='60'
 EOF
             fi
 
-            uci commit 
+            uci commit
         fi
-        
+
         wifi reload
         sleep 1
         /etc/init.d/network restart
     elif [ "${ACTION}" = unbind ]; then
-        logger "${MODULE}: eject"
+        logger "usbwifi: ${MODULE}: eject"
 
         # User may change ${RADIO}'s config. So we don't modify it when eject.
         #uci delete wireless.${RADIO}
