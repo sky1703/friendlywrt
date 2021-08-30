@@ -1,0 +1,17 @@
+#!/bin/sh /etc/rc.common
+
+START=13
+STOP=19
+ 
+start() {
+     echo "fa-init started"
+     board=$(cat /tmp/sysinfo/board_name | cut -d , -f2)
+     if [ ! -e /etc/firstboot_${board} ]; then
+         /root/setup.sh
+         echo $board > /etc/firstboot_${board}
+     fi
+}
+
+stop() {
+	echo "fa-init: do nothing"
+}

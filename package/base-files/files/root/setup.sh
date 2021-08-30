@@ -1,5 +1,6 @@
 #!/bin/sh
 # THIS SCIPRT ONLY RUN ONCE. Base on /etc/firstboot_${board}
+# /etc/init.d/fa-init
 
 TAG=friendlyelec
 logger "${TAG}: /root/setup.sh running"
@@ -11,16 +12,6 @@ if [ x${VENDOR} != x"friendlyelec" ]; then
         	logger "only support friendlyelec boards. exiting..."
         	exit 0
 	fi
-fi
-
-if [ -f /sys/class/sunxi_info/sys_info ]; then
-    SUNXI_BOARD=`grep "board_name" /sys/class/sunxi_info/sys_info`
-    SUNXI_BOARD=${SUNXI_BOARD#*FriendlyElec }
-
-    logger "${TAG}: init for ${SUNXI_BOARD}"
-    if ls /root/board/${SUNXI_BOARD}/* >/dev/null 2>&1; then
-        cp -rf /root/board/${SUNXI_BOARD}/* /
-    fi
 fi
 
 DISABLE_IPV6=0
@@ -38,8 +29,6 @@ if [ ${DISABLE_IPV6} -eq 1 ]; then
     uci set 'dhcp.lan.dhcpv6=disabled'
     uci set 'dhcp.lan.ra=disabled'
     uci commit dhcp
-
-    /etc/init.d/odhcpd restart
     # }}
 fi
 
@@ -47,11 +36,6 @@ fi
 uci set 'network.globals.ula_prefix=fd00:ab:cd::/48'
 uci commit network
 # }}
-
-/etc/init.d/led restart
-/etc/init.d/network restart
-/etc/init.d/dnsmasq restart
-logger "setup.sh: restart network services"
 
 # fix netdata issue
 [ -d /usr/share/netdata/web ] && chown -R root:root /usr/share/netdata/web
@@ -86,9 +70,7 @@ if [ ${ENABLE_SIMPLIFIED_SETTINGS} -eq 1 ]; then
     [ -f /etc/init.d/watchcat ] && uci delete system.@watchcat[0]
 
     uci commit
-    [ -f /etc/init.d/ttyd ] && /etc/init.d/ttyd restart
     [ -f /etc/init.d/watchcat ] && /etc/init.d/watchcat stop
-    [ -f /etc/init.d/samba ] && /etc/init.d/samba restart
 fi
 
 logger "done"
