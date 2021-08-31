@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# determine fan controller
+if [ -d /sys/devices/platform/pwm-fan ]; then
+    echo "pls use /usr/bin/fa-fancontrol.sh."
+    exit 1
+fi
+
 if [ ! -d /sys/class/pwm/pwmchip1 ]; then
     echo "this model does not support pwm."
     exit 1
