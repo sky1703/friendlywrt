@@ -2,4 +2,9 @@
 
 [ "${ACTION}" = "add" ] && {
 	/sbin/wifi config
+    if grep brcmfmac /sys/$DEVPATH/device/uevent 2>/dev/null; then
+        sleep 1
+        /sbin/wifi up
+        /sbin/fw3 -q reload
+    fi
 }

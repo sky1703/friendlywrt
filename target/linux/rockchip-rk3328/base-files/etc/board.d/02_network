@@ -9,15 +9,16 @@ board_config_update
 
 case "$(board_name)" in
 "friendlyelec,nanopi-r2" \
+|"friendlyelec,nanopi-r2c" \
 |"friendlyelec,nanopi-r2s")
     ucidef_set_interfaces_lan_wan "eth1" "eth0"
-	;;
+    ;;
 "friendlyelec,nanopi-neo3")
-    ucidef_set_interface_wan 'eth0'
+    ucidef_set_interfaces_lan_wan 'wlan0' 'eth0'
     ;;
 *)
-	ucidef_set_interface_wan 'eth0'
-	;;
+    ucidef_set_interfaces_lan_wan 'wlan0' 'eth0'
+    ;;
 esac
 
 board_config_flush

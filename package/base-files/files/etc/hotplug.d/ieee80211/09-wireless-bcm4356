@@ -7,6 +7,10 @@ FA_PID=`cat /sys/class/${SUBSYSTEM}/${DEVICENAME}/device/device`
 [ ${FA_VID} = "0x02d0" ] || exit 0
 [ ${FA_PID} = "0x4356" ] || exit 0
 
+if grep brcmfmac /sys/$DEVPATH/device/uevent 2>/dev/null; then
+    exit 0
+fi
+
 sleep 1
 FA_RETRY=0
 FA_MAX=10

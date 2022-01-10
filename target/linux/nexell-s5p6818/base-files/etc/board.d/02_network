@@ -8,16 +8,14 @@
 board_config_update
 
 case "$(board_name)" in
-"friendlyelec,nanopi-fire3")
-	ucidef_set_interface_wan "eth0"
-	;;
-"friendlyelec,nanopc-t3" \
+"friendlyelec,nanopi-fire3" \
+|"friendlyelec,nanopc-t3" \
 |"friendlyelec,nanopi-m3b" \
 |"friendlyelec,smart6818")
 	ucidef_set_interfaces_lan_wan "wlan0" "eth0"	
 	;;
 *)
-	ucidef_set_interface_lan 'eth0'
+    ucidef_set_interfaces_lan_wan "wlan0" "eth0"
 	;;
 esac
 
