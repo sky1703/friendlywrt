@@ -2,7 +2,7 @@
 rm feeds/packages/net/xtables-addons -r
 rm feeds/packages/utils/runc -r
 rm feeds/packages/lang/golang -r
-cp packages/github/golang feeds/packages/lang/ -r
+cp package/depend-package/golang feeds/packages/lang/ -r
 rm -rf feeds/packages/utils/containerd
 rm -rf feeds/packages/utils/libnetwork
 rm -rf  feeds/node/node-cylon-i2c 
