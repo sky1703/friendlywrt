@@ -1,12 +1,12 @@
 #!/bin/sh
-rm feeds/packages/net/xtables-addons -r
-rm feeds/packages/utils/runc -r
-rm feeds/packages/lang/golang -r
+
+./scripts/feeds clean -a
+./scripts/feeds update -a
+./scripts/feeds install -a
+./scripts/feeds install -a
+./scripts/feeds install -a
+
 cp package/depend-package/golang feeds/packages/lang/ -r
-rm -rf feeds/packages/utils/containerd
-rm -rf feeds/packages/utils/libnetwork
-rm -rf  feeds/node/node-cylon-i2c 
-rm -rf feeds/node/node-cylon-gpio
 
 mkdir -p package/gitfeed
 git clone https://github.com/kenzok8/openwrt-packages package/gitfeed/kenzo
